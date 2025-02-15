@@ -7,7 +7,16 @@ spring:
     config:
       server:
         native:
-          # search-locations: file:///c:\temp
-          search-locations: classpath:/config
+          search-locations: file:///c:\temp\config
+          # search-locations: classpath:/config
+        vault:
+          host: 127.0.0.1
+          port: 8200
+          kv-version: 1
+          backend: licensing-service
+          profile-separator: /
 server:
   port: 8071
+  
+encrypt:
+  key: fje83Ki8403Iod87dne7Yjsl3THueh48jfuO9j4U2hf64Lo 
