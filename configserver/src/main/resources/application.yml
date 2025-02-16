@@ -7,8 +7,8 @@ spring:
     config:
       server:
         native:
-          search-locations: file:///c:\temp\config
-          # search-locations: classpath:/config
+          # search-locations: file:///c:\temp\config
+          search-locations: classpath:/config
         vault:
           host: 127.0.0.1
           port: 8200
