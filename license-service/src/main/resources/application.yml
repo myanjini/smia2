@@ -5,3 +5,30 @@ spring:
     active: dev
   config: 
     import: "optional:configserver:http://localhost:8071"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - health
+        - metrics
+        - circuitbreakers
+resilience4j.circuitbreaker:
+  instances:
+    licenseService:         # @CircuitBreaker(name = "licenseService") 인스턴스 구성
+      register-health-indicator: true     # 상태 정보 엔드포인트에 대한 구성 정보 노출 여부를 설정
+      sliding-window-size: 5
+      wait-duration-in-open-state: 10s
+      failure-rate-threshold: 50
+      record-exceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.io.IOException
+        - java.util.concurrent.TimeoutException
+        - org.springframework.web.client.ResourceAccessException
+    organizationService:        # @CircuitBreaker(name = "organizationService") 인스턴스 구성
+      registerHealthIndicator: true
+#      ringBufferSizeInClosedState: 6
+#      ringBufferSizeInHalfOpenState: 4
+      waitDurationInOpenState: 20s
+      failureRateThreshold: 60

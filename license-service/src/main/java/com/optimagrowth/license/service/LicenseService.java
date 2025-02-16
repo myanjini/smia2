@@ -1,6 +1,10 @@
 package com.optimagrowth.license.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -14,6 +18,10 @@ import com.optimagrowth.license.service.client.OrganizationDiscoveryClient;
 import com.optimagrowth.license.service.client.OrganizationFeignClient;
 import com.optimagrowth.license.service.client.OrganizationRestTemplateClient;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class LicenseService {
     @Autowired
@@ -24,7 +32,7 @@ public class LicenseService {
 
     @Autowired
     ServiceConfig config;
-    
+
     @Autowired
     OrganizationFeignClient organizationFeignClient;
 
@@ -34,6 +42,39 @@ public class LicenseService {
     @Autowired
     OrganizationDiscoveryClient organizationDiscoveryClient;
 
+    private void randomlyRunLong() throws TimeoutException {
+        Random rand = new Random();
+        int randomNum = rand.nextInt((3 - 1) + 1) + 1;
+        if (randomNum == 3)
+            sleep();
+    }
+
+    private void sleep() throws TimeoutException {
+        try {
+            Thread.sleep(5000);
+            throw new java.util.concurrent.TimeoutException();
+        } catch (InterruptedException e) {
+            log.error(">>>>>>>>>>>>>>> " + Thread.currentThread().getId() + " " + e.getMessage());
+        }
+    }
+
+    @CircuitBreaker(name = "licenseService")
+    public List<License> getLicensesByOrganization(String organizationId) throws TimeoutException {
+        randomlyRunLong();
+        return licenseRepository.findByOrganizationId(organizationId);
+    }
+
+    @SuppressWarnings("unused")
+    private List<License> buildFallbackLicenseList(String organizationId, Throwable t){
+        List<License> fallbackList = new ArrayList<>();
+        License license = new License();
+        license.setLicenseId("0000000-00-00000");
+        license.setOrganizationId(organizationId);
+        license.setProductName("Sorry no licensing information currently available");
+        fallbackList.add(license);
+        return fallbackList;
+    }
+    
     public License getLicense(String licenseId, String organizationId) {
         License license = licenseRepository.findByOrganizationIdAndLicenseId(organizationId, licenseId);
         if (license == null) {
@@ -66,6 +107,10 @@ public class LicenseService {
 
         switch (clientType) {
         case "feign":
+            try {
+                Thread.sleep(10000);
+                throw new java.util.concurrent.TimeoutException();
+            } catch(Exception e) {}
             System.out.println("I am using the feign client");
             organization = organizationFeignClient.getOrganization(organizationId);
             break;

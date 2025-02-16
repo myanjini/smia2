@@ -22,8 +22,9 @@ public class LicenseServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(LicenseServiceApplication.class, args);
     }
+    
     @Bean
-    public LocaleResolver localeResolver() {
+    public LocaleResolver customlocaleResolver() {
         SessionLocaleResolver localeResolver = new SessionLocaleResolver();
         localeResolver.setDefaultLocale(Locale.US);
         return localeResolver;
