@@ -53,19 +53,29 @@ public class LicenseService {
         try {
             Thread.sleep(5000);
             throw new java.util.concurrent.TimeoutException();
-        } catch (InterruptedException e) {
-            log.error(">>>>>>>>>>>>>>> " + Thread.currentThread().getId() + " " + e.getMessage());
-        }
+        } catch (InterruptedException e) { }
     }
 
-    @CircuitBreaker(name = "licenseService")
+    private int count = 0;
+    
+    @CircuitBreaker(name = "licenseService", fallbackMethod = "buildFallbackLicenseList")
     public List<License> getLicensesByOrganization(String organizationId) throws TimeoutException {
-        randomlyRunLong();
+        // randomlyRunLong();
+        
+        count ++;
+        log.info(">>> getLicensesByOrganization ... " + count);
+        try {
+            Thread.sleep(3000);
+            throw new java.util.concurrent.TimeoutException();
+        } catch (InterruptedException e) { }
+        
+        log.info(">>> findByOrganizationId ... " + count);
         return licenseRepository.findByOrganizationId(organizationId);
     }
 
     @SuppressWarnings("unused")
     private List<License> buildFallbackLicenseList(String organizationId, Throwable t){
+        log.info(">>>>>>>>>>>>>>> fallback");
         List<License> fallbackList = new ArrayList<>();
         License license = new License();
         license.setLicenseId("0000000-00-00000");
