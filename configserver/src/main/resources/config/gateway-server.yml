@@ -24,10 +24,10 @@ spring:
           - RewritePath=/licsvc/(?<segment>.*), /${segment}
         - id: organization-service
           predicates:
-          - Path=/orgsvc/**
+          - Path=/neworgsvc/**
           uri: lb://ORGANIZATION-SERVICE
           filters:
-          - RewritePath=/orgsvc/(?<segment>.*), /${segment}        
+          - RewritePath=/neworgsvc/(?<segment>.*), /${segment}        
         
 management:
   endpoints:
