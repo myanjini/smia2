@@ -33,7 +33,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: "gateway,health,info,metrics"
+        include: "gateway,health,info,metrics,refresh"
   endpoint:
     gateway:
+      enabled: true
+    refresh:
       enabled: true
